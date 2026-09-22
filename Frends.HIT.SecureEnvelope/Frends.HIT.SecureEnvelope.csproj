@@ -14,9 +14,12 @@
              here, so the warning is suppressed instead of drowned out. -->
         <NoWarn>$(NoWarn);CS1591</NoWarn>
         <Title>Frends SecureEnvelope Library</Title>
-        <Authors>Lars Scheibling &lt;Hoglandets IT&gt;</Authors>
-        <Description> </Description>
-        <Version>2.0.1</Version>
+        <Authors>Örnsköldsviks kommun</Authors>
+        <Description>Frends task for Nordea's Secure Envelope: builds a signed BXD ApplicationRequest for delivery over SFTP, and parses the ApplicationResponse returned by the bank. Fork of Frends.HIT.SecureEnvelope by Lars Scheibling, Höglandets IT.</Description>
+        <Copyright>Copyright (c) Höglandets IT. MIT licensed. Maintained by Örnsköldsviks kommun.</Copyright>
+        <RepositoryUrl>https://github.com/ornskoldsvikskommun/Frends.HIT.SecureEnvelope</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/ornskoldsvikskommun/Frends.HIT.SecureEnvelope</PackageProjectUrl>
+        <Version>3.0.0</Version>
     </PropertyGroup>
     <ItemGroup>
       <None Include="FrendsTaskMetadata.json" Pack="true" PackagePath="/">
