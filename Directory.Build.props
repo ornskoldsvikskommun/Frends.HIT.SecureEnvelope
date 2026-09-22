@@ -1,0 +1,43 @@
+<Project>
+
+  <!--
+    Repo-wide NuGet vulnerability auditing.
+
+    Place this file in the repository root. MSBuild walks up from each .csproj
+    and imports the first Directory.Build.props it finds, so every project in
+    the repo picks these settings up automatically.
+
+    If a Directory.Build.props already exists, merge the PropertyGroup below
+    into it rather than replacing the file.
+  -->
+
+  <PropertyGroup>
+
+    <!-- Report known vulnerabilities during restore. Default is already true,
+         set explicitly so an SDK default change can't silently disable it. -->
+    <NuGetAudit>true</NuGetAudit>
+
+    <!-- 'direct' (the default below net10.0) only audits packages you
+         reference yourself. 'all' includes transitive packages, which is where
+         System.Security.Cryptography.Xml usually hides. This is the single
+         most important line in this file. -->
+    <NuGetAuditMode>all</NuGetAuditMode>
+
+    <!-- Report everything; severity is handled by WarningsAsErrors below. -->
+    <NuGetAuditLevel>low</NuGetAuditLevel>
+
+    <!-- NU1901 = low, NU1902 = moderate, NU1903 = high, NU1904 = critical.
+         High and critical break the build; low and moderate stay warnings so
+         the build isn't held hostage by a low-severity transitive finding
+         nobody can fix this sprint. -->
+    <WarningsAsErrors>$(WarningsAsErrors);NU1903;NU1904</WarningsAsErrors>
+
+    <!-- NU1905 means no configured source supplied vulnerability data, i.e.
+         the audit ran but knew nothing. Silent success is the worst outcome
+         here, so surface it as a warning you will actually see.
+         See NuGet.config in this folder, which lists nuget.org explicitly. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1905</WarningsNotAsErrors>
+
+  </PropertyGroup>
+
+</Project>
