@@ -4,7 +4,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <!-- Kept true: Frends reads the packed .xml to render task and parameter
+             descriptions in the process editor. Turning it off would silence
+             CS1591 too, but would quietly degrade the Frends UI. -->
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <!-- CS1591 "missing XML comment for publicly visible type or member":
+             42 occurrences, all in Definitions.cs. The docs are being written
+             properly in the net10.0 replacement task rather than retrofitted
+             here, so the warning is suppressed instead of drowned out. -->
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
         <Title>Frends SecureEnvelope Library</Title>
         <Authors>Lars Scheibling &lt;Hoglandets IT&gt;</Authors>
         <Description> </Description>
