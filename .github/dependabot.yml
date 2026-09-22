@@ -1,3 +1,18 @@
+# Grouping and auto-merge are co-designed: see .github/workflows/dependabot-auto-merge.yml.
+#
+# Every group carries `update-types: [minor, patch]`. That is what makes grouped
+# PRs reliably auto-mergeable: dependabot/fetch-metadata reports a grouped PR's
+# HIGHEST semver bump, so a single major inside a group would mark the whole
+# batch semver-major and strand the safe updates behind a human review.
+# Majors therefore arrive as their own PRs, which the auto-merge workflow skips.
+#
+# `applies-to: version-updates` scopes the grouping to routine churn only.
+# Security advisories ignore grouping entirely and always get their own PR.
+#
+# No `target-branch` anywhere: security updates skip any entry that sets one
+# (GitHub docs: "you should not specify a target-branch") and always target the
+# default branch, which is already master.
+
 version: 2
 
 updates:
@@ -9,26 +24,33 @@ updates:
       time: "06:00"
       timezone: Europe/Stockholm
     open-pull-requests-limit: 5
-    # Routine version churn arrives as one PR per week instead of five.
-    # Security updates ignore this grouping and always get their own PR.
     groups:
-      minor-and-patch:
+      production-dependencies:
+        applies-to: version-updates
         update-types:
           - minor
           - patch
+        patterns: ["*"]
     commit-message:
       prefix: "deps"
       include: scope
-    # Major bumps of Frends task SDK packages tend to change the task contract,
-    # so they are better handled deliberately than by a bot. Uncomment and
-    # adjust once you know which packages those are in this repo.
-    # ignore:
-    #   - dependency-name: "Frends.*"
-    #     update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: monthly
+    groups:
+      actions:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+        patterns: ["*"]
     commit-message:
       prefix: "ci"
+
+# Deliberately no `ignore` block for majors. Unlike `groups`, `ignore` has no
+# `applies-to` switch, so `update-types: [version-update:semver-major]` would
+# suppress major-version SECURITY advisories as well as routine updates -- the
+# exact notification this repo was hardened to receive. Majors arrive as solo
+# PRs that auto-merge skips; close the unwanted ones by hand.

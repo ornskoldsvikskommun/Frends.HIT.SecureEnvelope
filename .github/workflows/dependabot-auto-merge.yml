@@ -1,0 +1,35 @@
+# Auto-merge Dependabot's patch and minor updates once CI passes.
+#
+# Majors are never auto-merged: they arrive as solo PRs (see the grouping rules
+# in .github/dependabot.yml) and wait for a human.
+
+name: Dependabot auto-merge
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    # Gated on the PR author, not github.actor, so a human reopening or
+    # re-running the workflow does not silently disable it.
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # An explicit allow-list, not `!= semver-major`: fetch-metadata reports an
+      # empty or unknown update-type for anything it cannot classify, and a
+      # deny-list would auto-merge that unreviewed.
+      - name: Enable auto-merge for patch and minor updates
+        if: contains(fromJSON('["version-update:semver-patch", "version-update:semver-minor"]'), steps.metadata.outputs.update-type)
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
