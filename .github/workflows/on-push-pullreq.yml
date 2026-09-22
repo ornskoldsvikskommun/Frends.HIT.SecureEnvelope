@@ -12,9 +12,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.x
+          global-json-file: global.json
       - name: Build and Pack
         run: |
           dotnet restore Frends.HIT.SecureEnvelope/Frends.HIT.SecureEnvelope.csproj
