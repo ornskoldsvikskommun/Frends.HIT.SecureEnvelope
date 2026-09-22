@@ -16,7 +16,7 @@
         <Title>Frends SecureEnvelope Library</Title>
         <Authors>Lars Scheibling &lt;Hoglandets IT&gt;</Authors>
         <Description> </Description>
-        <Version>2.0.1</Version>
+        <Version>3.0.0</Version>
     </PropertyGroup>
     <ItemGroup>
       <None Include="FrendsTaskMetadata.json" Pack="true" PackagePath="/">
