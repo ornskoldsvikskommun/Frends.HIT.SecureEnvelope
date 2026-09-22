@@ -1,0 +1,38 @@
+# Build and restore on every push to master and every pull request.
+#
+# The repo previously had no CI on push or PR at all: both existing workflows
+# trigger on `release: published`, despite on-push-pullreq.yml's name. That
+# meant a broken build -- or a NuGet audit failure -- was only discovered when
+# cutting a release.
+#
+# The job id `build-test` is what a branch protection rule should reference as
+# the required status check.
+
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      # Restore is a separate step so a NuGet audit failure is reported as a
+      # restore failure rather than buried in build output.
+      - name: Restore
+        run: dotnet restore Frends.HIT.SecureEnvelope.sln
+
+      - name: Build
+        run: dotnet build Frends.HIT.SecureEnvelope.sln -c Release --no-restore
