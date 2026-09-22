@@ -1,0 +1,11 @@
+# Normalise all text files to LF in the repository and in the working tree.
+# Without this the whole tree flips to CRLF whenever a file is written through
+# the \\wsl$ share from a Windows editor, showing all files as modified.
+* text=auto eol=lf
+
+# Binary assets — never convert.
+*.pdf   binary
+*.png   binary
+*.ico   binary
+*.nupkg binary
+*.snk   binary
