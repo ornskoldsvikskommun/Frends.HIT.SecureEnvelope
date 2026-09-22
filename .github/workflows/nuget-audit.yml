@@ -1,0 +1,90 @@
+# Weekly sweep for newly published advisories.
+#
+# Dependabot alerts cover this too, but they only reach repo admins by email
+# by default and are easy to miss. This workflow leaves a dated record in the
+# Actions log and opens (or comments on) a tracking issue, which is what the
+# Teams GitHub integration will actually surface to the team.
+#
+# It also catches the case that bit you here: the code didn't change, the
+# advisory did.
+
+name: nuget-audit
+
+on:
+  schedule:
+    # Mondays 05:00 UTC (07:00 Stockholm in summer, 06:00 in winter).
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    name: Audit NuGet dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      # --force-evaluate makes restore re-resolve against the audit source
+      # instead of trusting a cached resolution, which is the whole point of a
+      # scheduled run. Failures here are reported by the audit step below, so
+      # don't abort the job on a non-zero exit.
+      - name: Restore
+        run: dotnet restore --force-evaluate
+        continue-on-error: true
+
+      - name: List vulnerable packages
+        id: audit
+        run: |
+          set -uo pipefail
+          dotnet list package --vulnerable --include-transitive > audit.txt 2>&1 || true
+          cat audit.txt
+
+          if grep -qi "no vulnerable packages" audit.txt; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "blocking=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if grep -qiE "^ +> " audit.txt; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Severity is a column in the output table.
+          if grep -qiE "\b(High|Critical)\b" audit.txt; then
+            echo "blocking=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "blocking=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or update tracking issue
+        if: steps.audit.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          TITLE="Vulnerable NuGet packages detected"
+          BODY="$(printf 'The weekly NuGet audit found vulnerable packages.\n\n```\n%s\n```\n\n[Workflow run](%s)\n' "$(cat audit.txt)" "$RUN_URL")"
+
+          EXISTING="$(gh issue list --state open --search "\"$TITLE\" in:title" --json number --jq '.[0].number // empty')"
+
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: Fail on high or critical
+        if: steps.audit.outputs.blocking == 'true'
+        run: |
+          echo "::error::High or critical severity advisories found - see the tracking issue."
+          exit 1

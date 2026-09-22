@@ -1,0 +1,34 @@
+version: 2
+
+updates:
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Stockholm
+    open-pull-requests-limit: 5
+    # Routine version churn arrives as one PR per week instead of five.
+    # Security updates ignore this grouping and always get their own PR.
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: "deps"
+      include: scope
+    # Major bumps of Frends task SDK packages tend to change the task contract,
+    # so they are better handled deliberately than by a bot. Uncomment and
+    # adjust once you know which packages those are in this repo.
+    # ignore:
+    #   - dependency-name: "Frends.*"
+    #     update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci"
