@@ -258,3 +258,9 @@ Frends.HIT.SecureEnvelope.Test.old/
 Frends.HIT.SecureEnvelope.Tests/Local*.xml
 
 debug.log
+
+# Claude Code — per-developer, not shared
+CLAUDE.md
+
+# Windows NTFS alternate-data-stream artifacts (copied via the \\wsl$ share)
+*:Zone.Identifier
