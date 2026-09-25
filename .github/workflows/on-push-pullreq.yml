@@ -2,6 +2,13 @@ on:
   release:
     types: [published]
 
+# Least privilege for GITHUB_TOKEN. The repo default is write-all; this job only
+# checks out (contents: read) and attaches the .nupkg to the release via
+# upload-release-action (contents: write). The NuGet push uses its own feed
+# secrets, not GITHUB_TOKEN.
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
