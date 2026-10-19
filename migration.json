@@ -1,0 +1,14 @@
+{
+  "task": "Frends.HIT.SecureEnvelope",
+  "fromVersion": "< 3.0.0",
+  "toVersion": ">= 3.0.0",
+  "breakingChanges": [
+    {
+      "type": "removal",
+      "introducedIn": "3.0.0",
+      "from": "TargetFramework net6.0",
+      "to": "TargetFramework net8.0",
+      "howToFix": "The package now only ships a net8.0 build, so a Frends agent running on .NET 6 can no longer load it. Run the processes that use UploadFile or ParseResponse on an agent with the .NET 8 runtime. Task parameters, results and the signed XML are unchanged, so no process changes are needed."
+    }
+  ]
+}
