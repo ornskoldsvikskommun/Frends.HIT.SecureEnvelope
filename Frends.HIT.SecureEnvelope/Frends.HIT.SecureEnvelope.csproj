@@ -22,6 +22,7 @@
         <Version>3.0.1</Version>
     </PropertyGroup>
     <ItemGroup>
+      <None Include="..\migration.json" Pack="true" PackagePath="/"/>
       <None Include="FrendsTaskMetadata.json" Pack="true" PackagePath="/">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
