@@ -29,6 +29,6 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-        <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.5" />
+        <PackageReference Include="System.Security.Cryptography.Xml" Version="11.0.0" />
     </ItemGroup>
 </Project>
